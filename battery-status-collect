@@ -31,5 +31,5 @@ log_battery() {
 cd /sys/class/power_supply
 
 for bat in BAT*; do
-    (cd $bat && log_battery | tee -a "$logfile")
-done
+    (cd $bat && log_battery)
+done | tee -a "$logfile"
