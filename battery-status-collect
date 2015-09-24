@@ -23,7 +23,7 @@ log_battery() {
     # when several log processes run in parallell.
     msg=$(printf "%s," $(date +%s); \
 	for f in $files; do \
-	    printf "%s," $(cat $f); \
+	    printf "%s," $(cat $f 2>/dev/null); \
 	done)
     echo "$msg"
 }
