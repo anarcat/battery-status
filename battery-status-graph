@@ -9,14 +9,27 @@ type=$(head -2 "$input" | tail -1 | cut -d, -f2-4 | tr , " ")
 
 (
     cat <<EOF
+# autoscale the format of the X axis, inspired by:
+# http://stackoverflow.com/questions/19883155/mixing-date-and-time-on-gnuplot-xaxis
+fmt = "%s"
+stats '$input' using  (strptime(fmt, stringcolumn(1))) nooutput
+t = int(STATS_min)
+t_start = t - tm_hour(t)*60*60 - tm_min(t)*60 - tm_sec(t)
+num_days = 2 + (int(STATS_max) - t)/(24*60*60)
+
 set xdata time
 set timefmt "%s"
-set format x "%Y"
+set format x "%Y-%m-%d"
 set datafile separator ","
 set title 'Battery statistics $type'
 set ylabel 'Percent'
-set xlabel 'Year'
+set xlabel 'Time'
 set grid
+
+set timefmt fmt
+set xtics 4*60*60
+set for [i=0:num_days] xtics add (strftime('%Y-%m-%d', t_start+(i-1)*24*60*60) t_start+(i-1)*24*60*60)
+set format x '%H:%M'
 EOF
     if [ "$filename" ]; then
         cat <<EOF
